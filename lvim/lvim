@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+HIKTOOLS_LVIM="/tools/lvim"
+
+export NVIM_APPNAME="${NVIM_APPNAME:-"lvim"}"
+
+export LUNARVIM_RUNTIME_DIR="${LUNARVIM_RUNTIME_DIR:-"${HIKTOOLS_LVIM}/.local/share/lunarvim"}"
+export LUNARVIM_CONFIG_DIR="${LUNARVIM_CONFIG_DIR:-"${HIKTOOLS_LVIM}/.config/lvim"}"
+export LUNARVIM_CACHE_DIR="${LUNARVIM_CACHE_DIR:-"${HIKTOOLS_LVIM}/.cache/lvim"}"
+
+export LUNARVIM_BASE_DIR="${LUNARVIM_BASE_DIR:-"${HIKTOOLS_LVIM}/.local/share/lunarvim/lvim"}"
+
+exec -a "$NVIM_APPNAME" nvim -u "$LUNARVIM_BASE_DIR/init.lua" "$@"
