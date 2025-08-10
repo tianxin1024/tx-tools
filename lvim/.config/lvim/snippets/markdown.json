@@ -1,0 +1,16 @@
+{
+    "plan 1": {
+        "prefix": "plan",
+        "body": [
+            "## ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+            "### 计划",
+            "---",
+            "- [${1| ,x|}] ${2:text}",
+            "",
+            "### 笔记",
+            "---",
+            ""
+        ],
+        "description": "Content of the work plan."
+    }
+}

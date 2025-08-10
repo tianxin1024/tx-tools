@@ -1,0 +1,5 @@
+{
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.logLevel": "Error",
+    "python.linting.pylintEnabled": false
+}

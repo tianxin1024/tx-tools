@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-HIKTOOLS_LVIM="/tools/lvim"
+HIKTOOLS_LVIM="$HIKTOOLS/lvim"
 
 export NVIM_APPNAME="${NVIM_APPNAME:-"lvim"}"
 

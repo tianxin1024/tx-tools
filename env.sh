@@ -1,6 +1,7 @@
 #!/bin/bash
 
 HIKTOOLS="$(pwd)"
+export HIKTOOLS
 
 ## =============================================================== ##
 ##   neovim
@@ -11,11 +12,11 @@ export PATH="$NVIM_HOME/bin:$PATH"
 ## =============================================================== ##
 ##   lunarvim
 ## =============================================================== ##
-# alias vim='${HIKTOOLS}/lvim/lvim'
-# export EDITOR=lvim
+alias vim='${HIKTOOLS}/lvim/lvim'
+export EDITOR=lvim
 
-# export AIDER_EDITOR=lvim
-# export AIDER_DARK_MODE=true
+export AIDER_EDITOR=lvim
+export AIDER_DARK_MODE=true
 
 
 ## =============================================================== ##

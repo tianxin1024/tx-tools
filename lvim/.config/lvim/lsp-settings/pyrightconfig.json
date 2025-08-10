@@ -1,0 +1,9 @@
+{
+    "typeCheckingMode": "basic",
+    "reportMissingImports": true,
+    "reportUnusedImports": true,
+    "reportUnusedVariable": true,
+    "formatting": {
+        "provider": "none" // 禁用任何格式化工具
+    }
+}

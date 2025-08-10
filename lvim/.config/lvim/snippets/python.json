@@ -1,0 +1,19 @@
+{
+    "hello": {
+        "prefix": "hello",
+        "body": ["print('Hello, World!')"],
+        "description": "print Hello, World!"
+    },
+    "params": {
+        "prefix": "params",
+        "body": [
+            "\t\"\"\"",
+            "\tParameters", 
+            "\t----------",
+            "\tResults",
+            "\t-------",
+            "\t\"\"\""
+        ],
+        "description": "the description of function."
+    }
+}
