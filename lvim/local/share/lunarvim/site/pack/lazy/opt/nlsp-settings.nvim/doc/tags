@@ -1,0 +1,12 @@
+:LspSettings	nlspsettings.txt	/*:LspSettings*
+nlsp-settings-interface	nlspsettings.txt	/*nlsp-settings-interface*
+nlsp-settings-introduction	nlspsettings.txt	/*nlsp-settings-introduction*
+nlsp-settings-requirements	nlspsettings.txt	/*nlsp-settings-requirements*
+nlsp-settings.nvim	nlspsettings.txt	/*nlsp-settings.nvim*
+nlspsettings	nlspsettings.txt	/*nlspsettings*
+nlspsettings-commands	nlspsettings.txt	/*nlspsettings-commands*
+nlspsettings.json	nlspsettings.txt	/*nlspsettings.json*
+nlspsettings.json.get_default_schemas()	nlspsettings.txt	/*nlspsettings.json.get_default_schemas()*
+nlspsettings.setup()	nlspsettings.txt	/*nlspsettings.setup()*
+nlspsettings.yaml	nlspsettings.txt	/*nlspsettings.yaml*
+nlspsettings.yaml.get_default_schemas()	nlspsettings.txt	/*nlspsettings.yaml.get_default_schemas()*

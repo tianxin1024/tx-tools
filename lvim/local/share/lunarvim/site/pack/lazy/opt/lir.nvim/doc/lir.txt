@@ -1,0 +1,656 @@
+*lir.nvim*
+
+
+==============================================================================
+INTRODUCTION                                               *lir-instroduction*
+
+simple file explorer
+
+
+==============================================================================
+REQUIREMENTS                                                *lir-requirements*
+
+- Neovim >= v0.5.0
+
+
+==============================================================================
+INTERFACE                                                      *lir-interface*
+
+------------------------------------------------------------------------------
+FUNCTIONS                                                      *lir-functions*
+
+lir.setup([{opts}])                                              *lir.setup()*
+   Set up the lir.
+   Please see |lir-settings|.
+
+lir.get_context([{bufnr}])                                 *lir.get_context()*
+    Returns |lir-context|.
+
+lir.float.init([{dir}])                                     *lir.float.init()*
+    If `dir` is nil, then `vim.fn.expand('%:p:h')` is used.
+
+lir.float.toggle([{dir}])                                 *lir.float.toggle()*
+    Toggles between showing and hiding.
+
+    If `dir` is nil, then `vim.fn.expand('%:p:h')` is used.
+
+lir.float.close()                                            *lir.float.close()*
+    Close floating window.
+
+                                         *lir.float.helper.make_border_opts()*
+lir.float.helper.make_border_opts({borderchars}, {highlight})
+    Generate the value of `border` to be passed to config as the third
+    argument of |nvim_open_win()|.
+>
+    local border = require("lir.float.helper").make_border_opts({
+      "+", "─", "+", "│", "+", "─", "+", "│",
+    }, "Normal")
+
+    -- The following values are returned.
+    {
+      { "+", "Normal" },
+      { "─", "Normal" },
+      { "+", "Normal" },
+      { "│", "Normal" },
+      { "+", "Normal" },
+      { "─", "Normal" },
+      { "+", "Normal" },
+      { "│", "Normal" },
+    }
+<
+lir.history.get_all()                                  *lir.history.get_all()*
+    Return history information.
+
+lir.history.replace_all({histories})               *lir.history.replace_all()*
+    Rewrite history information
+
+    `histories` is data in the same format as |lir.history.get_all()|
+
+
+==============================================================================
+CONTEXT                                                          *lir-context*
+
+The table returned by |lir.get_context()|.
+
+
+context.dir                                                  *lir-context.dir*
+    Current directory of lir.
+
+context.files                                              *lir-context.files*
+    List of |lir-file-item|.
+
+context.pasted_files                                *lir-context.pasted_files*
+    Information about the file pasted with |lir.clipboard.actions.paste()|.
+    |lir.clipboard.actions.paste()| is `nil` except immediately after the call.
+
+    The list is as follows: >
+       {
+         {
+           source_path: string,
+           target_path: string
+         },
+         ...
+       }
+>
+context:current()                                      *lir-context:current()*
+    Returns the |lir-file-item| under the cursor.
+
+        Return: ~
+            (table) |lir-file-item|
+
+context:current_items({mode})                    *lir-context:current_items()*
+    If {mode} is `'v'`, returns a list of the last selected |lir-file-items|,
+    if {mode} is `'n'` or `nil`, returns a list of only the |lir-file-items|
+    under the cursor
+
+        Return: ~
+            (table) |lir-file-item|[]
+
+context:current_value()                          *lir-context:current_value()*
+    Returns the `value` of |lir-file-item| under the cursor.
+
+        Return: ~
+            (string) |lir-file-item|.value
+
+context:indexof({value})                               *lir-context:indexof()*
+    Returns the index of {value} in |lir-context.files|.
+    Returns the result of comparing |lir-file-item|.value and {value}.
+
+        Return: ~
+            (number)
+
+context:is_dir_current()                        *lir-context:is_dir_current()*
+    Is the |lir-file-item| under the cursor a directory?
+
+        Return: ~
+            (boolean)
+
+context:get_marked_items()                    *lir-context:get_marked_items()*
+    Returns a list of marked |lir-file-item|.
+
+        Return: ~
+            (table) |lir-file-item|[]
+
+
+------------------------------------------------------------------------------
+LIR-FILE-ITEM                                                  *lir-file-item*
+
+A table about the file.
+This table can be retrieved with |context:current()| or |context.files|.
+
+
+LIR-FILE-ITEM-ATTRIBUTES                            *lir-file-item-attributes*
+
+value                                          *lir-file-item-attribute-value*
+    A file or directory name.
+
+is_dir                                        *lir-file-item-attribute-is_dir*
+    Is it a directory?
+
+fullpath                                    *lir-file-item-attribute-fullpath*
+    Full path.
+
+display                                      *lir-file-item-attribute-display*
+    Value to be displayed in the line
+
+marked                                        *lir-file-item-attribute-marked*
+    Is it marked?
+
+devicons                                    *lir-file-item-attribute-devicons*
+    A table about devicons.
+    If devicons is disabled, it will be set to `nil`.
+
+devicons.icon                          *lir-file-item-attribute-devicons-icon*
+    The text of the devicon.
+
+devicons.highlight_name      *lir-file-item-attribute-devicons-highlight_name*
+    Highlight name.
+    Value passed to |nvim_buf_add_highlight()|.
+
+
+==============================================================================
+SETTINGS                                                        *lir-settings*
+
+You can set it with |lir.setup()|.
+
+default value: >
+
+    {
+      show_hidden_files = false,
+      ignore = {},
+      devicons = {
+        enable = false,
+        highlight_dirname = false
+      },
+      hide_cursor = false
+      mappings = {},
+      float = {
+        winblend = 0,
+        win_opts = nil
+        curdir_window = {
+          enable = false,
+          highlight_name = false
+        }
+      },
+      on_init = function() end,
+      get_filters = nil
+    }
+<
+
+show_hidden_files                             *lir-settings-show_hidden_files*
+    Show files whose file names start with `.` by default?
+
+ignore                                                   *lir-settings-ignore*
+    List of files not to be displayed.
+
+devicons.enable                                 *lir-settings-devicons.enable*
+    Show devicons?
+
+devicons.highlight_dirname                     *lir-settings-devicons.highlight_dirname*
+    Highlight dirnames with devicons enabled?
+    Only has an effect when `devicons.enable = true`
+
+mappings                                               *lir-settings-mappings*
+    Specify the table to be used for mapping.
+    You can also specify a function that you define yourself.
+
+hide_cursor                                         *lir-settings-hide_cursor*
+    Hide the cursor in lir?
+    If the cursor is shown, it will be prefixed with a space.
+
+on_init                                                 *lir-settings-on_init*
+    Function to be executed after displaying the buffer of lir.
+    This function will be executed immediately after the |FileType| autocmd.
+
+    Deprecated `on_init`. Use |vim.api.nvim_create_autocmd()| instead.
+
+get_filters                                         *lir-settings-get_filters*
+    |lir-file-item| function that returns a list of functions to filter for.
+    They are called in order from the top of the list before being displayed
+    on the buffer.
+
+    Set up a function that returns a list of the following functions.
+    `lir_item` is |lir-file-item|.
+
+        `fun(files: lir_item[]): lir_item[]`
+
+float.winblend                                   *lir-settings-float.winblend*
+    The degree of transparency of the window displayed by the floating
+    window.
+
+float.win_opts                                   *lir-settings-float.win_opts*
+    Specifies the function that returns the table to be passed as the
+    third argument of |nvim_open_win()|.
+    Use this when you want to override the default configs below.
+    See the configuration example for details.
+
+    Default config: >
+      {
+        relative = "editor",
+        row = math.floor((vim.o.lines - (vim.o.lines * 0.5)) / 2) - 1,
+        col = math.floor((vim.o.lines - (vim.o.columns * 0.5)) / 2),
+        width = math.floor(vim.o.columns * 0.5),
+        height = math.floor(vim.o.lines * 0.5),
+        style = "minimal",
+        border = "double",
+      }
+<
+float.curdir_window.enable           *lir-settings-float.curdir_window.enable*
+    Show current directory window?
+
+float.curdir_window.highlight_dirname
+                          *lir-settings-float.curdir_window.highlight_dirname*
+    Highlight a directory in the current directory window in a floating
+    window?
+
+
+Example: >
+
+    local actions = require'lir.actions'
+    local mark_actions = require 'lir.mark.actions'
+    local clipboard_actions = require'lir.clipboard.actions'
+
+    require'lir'.setup {
+      show_hidden_files = false,
+      ignore = { '.DS_Store' },
+      devicons_enable = true,
+      mappings = {
+        ['l']     = actions.edit,
+        ['<C-s>'] = actions.split,
+        ['<C-v>'] = actions.vsplit,
+        ['<C-t>'] = actions.tabedit,
+
+        ['h']     = actions.up,
+        ['q']     = actions.quit,
+
+        ['K']     = actions.mkdir,
+        ['N']     = actions.newfile,
+        ['R']     = actions.rename,
+        ['@']     = actions.cd,
+        ['Y']     = actions.yank_path,
+        ['.']     = actions.toggle_show_hidden,
+
+        ['J'] = function()
+          mark_actions.toggle_mark()
+          vim.cmd('normal! j')
+        end,
+        ['C'] = clipboard_actions.copy,
+        ['X'] = clipboard_actions.cut,
+        ['P'] = clipboard_actions.paste,
+      },
+      float = {
+        winblend = 15,
+        curdir_window = {
+          enable = false,
+          highlight_name = false
+        }
+
+        -- You can define a function that returns a table to be passed as the third
+        -- argument of nvim_open_win().
+        win_opts = function()
+          local width = math.floor(vim.o.columns * 0.6)
+          local height = math.floor(vim.o.lines * 0.8)
+          return {
+            border = require("lir.float.helper").make_border_opts({
+              "+", "─", "+", "│", "+", "─", "+", "│",
+            }, "Normal"),
+            width = width,
+            height = height,
+            row = 10,
+            col = math.floor((vim.o.columns - width) / 2),
+          }
+        end,
+      },
+    }
+
+    vim.api.nvim_create_autocmd({'FileType'}, {
+      pattern = {"lir"},
+      callback = function()
+        -- use visual mode
+        vim.api.nvim_buf_set_keymap(
+          0,
+          "x",
+          "J",
+          ':<C-u>lua require"lir.mark.actions".toggle_mark("v")<CR>',
+          { noremap = true, silent = true }
+        )
+
+        -- echo cwd
+        vim.api.nvim_echo({ { vim.fn.expand("%:p"), "Normal" } }, false, {})
+      end
+    }
+
+    -- custom folder icon
+    require'nvim-web-devicons'.setup({
+      override = {
+        lir_folder_icon = {
+          icon = "",
+          color = "#7ebae4",
+          name = "LirFolderNode"
+        },
+      }
+    })
+<
+
+==============================================================================
+HIGHLIGHTS                                                    *lir-highlights*
+
+LirFloatNormal                                                *LirFloatNormal*
+
+    Default: `highlight def link LirFloatNormal Normal``
+
+    The highlight for float window.
+
+
+LirFloatBorder                                                *LirFloatBorder*
+
+    Default: `highlight def link LirFloatBorder FloatBorder``
+
+    The highlight for float window border.
+
+
+LirFloatCursorLine                                        *LirFloatCursorLine*
+
+    デフォルト: `highlight def link LirFloatCursorLine CursorLine``
+
+    The highlight for float window cursor line.
+
+
+LirDir                                                                *LirDir*
+
+    Default: `highlight def link LirDir PreProc`
+
+    The highlighting a directory when `devicons_enable` is `false`.
+
+
+LirSymLink                                                        *LirSymLink*
+
+    Default: `highlight def link LirSymLink PreProc`
+
+    The highlighting for symbolic.
+
+
+LirEmptyDirText                                              *LirEmptyDirText*
+
+    Default: `highlight def link LirEmptyDirText BlueSign`
+
+    The highlighting for text to be displayed when the directory is empty.
+
+
+LirFloatCurdirWindowNormal                        *LirFloatCurdirWindowNormal*
+
+    Default: `highlight def link LirFloatCurdirWindowNormal Normal`
+
+    The highlight for current directory window.
+
+
+LirFloatCurdirWindowDirName                      *LirFloatCurdirWindowDirName*
+
+    Default: `highlight def link LirFloatCurdirWindowDirName PreProc`
+
+    The Highlight for directory name in the current directory window.
+
+
+==============================================================================
+AUTOCMDS                                                        *lir-autocmds*
+
+LirSetTextFloatCurdirWindow                *LirSetTextFloatCurdirWindow*
+
+    Text is set in the current directory window.
+
+
+==============================================================================
+ACTIONS                                                     *lir-actions-list*
+
+A list of functions for use in mapping.
+
+Also, actions can be added easily.
+NOTE: see https://github.com/tamago324/lir.nvim/wiki/Custom-actions
+
+------------------------------------------------------------------------------
+Lua module: lir.actions                                          *lir-actions*
+
+edit([{opts}])                                            *lir.actions.edit()*
+    Use |:edit| to open the file under the cursor.
+
+        Parameters: ~
+            {opts} (table) Definition of editing commands. Keys: 
+                    • `modified_split_command` : Specifies the command to use
+                      when opening a file when the file has not been saved.
+                      (Default: `'split'`)
+
+
+split([{quit_lir}])                                      *lir.actions.split()*
+    Use |:new| to open the file under the cursor.
+
+        Parameters:
+            {quit_lir} (boolean) Quit lir after opening the new file (default)
+                If false lir will remain open.
+
+vsplit([{quit_lir}])                                    *lir.actions.vsplit()*
+    Use |:vnew| to open the file under the cursor.
+
+        Parameters:
+            {quit_lir} (boolean) Quit lir after opening the new file (default)
+                If false lir will remain open.
+
+tabedit([{quit_lir}])                                  *lir.actions.tabedit()*
+    Use |:tabedit| to open the file under the cursor.
+
+        Parameters:
+            {quit_lir} (boolean) Quit lir after opening the new file (default)
+                If false lir will remain open.
+
+up()                                                        *lir.actions.up()*
+    Move to the parent directory.
+
+quit()                                                    *lir.actions.quit()*
+    Close lir.
+
+mkdir()                                                  *lir.actions.mkdir()*
+    Create directories recursively i.e., if the path has missing parents, then
+    they will be created as well. Similar to `mkdir -p`
+
+rename([{use_default}])                                   *lir.actions.rename()*
+    Rename or move a file.
+
+        Parameters: ~
+            {use_default} (boolean) Use the already existing filename as prompt (default)
+                If `false` the prompt for new name will be empty.
+
+delete([{force}])                                       *lir.actions.delete()*
+    Delete a file.
+    To delete the file and buffer simultaneously, see |lir.actions.wipeout()|
+
+        Parameters: ~
+            {force} (boolean) If `true`, do not ask for confirmation.
+
+wipeout()                                              *lir.actions.wipeout()*
+    Delete a file and the respective buffer simultaneously.
+
+newfile()                                              *lir.actions.newfile()*
+    Opens a new buffer.
+    The file is created by executing commands such as |:w| or |:update|.
+
+touch()                                                  *lir.actions.touch()*
+    Create a new file.
+
+cd()                                                        *lir.actions.cd()*
+    Change the current directory of Vim to |lir-context.dir|.
+    Use |:lcd| or |:cd|.
+
+reload()                                                *lir.actions.reload()*
+    Reload the lir.
+
+yank_path()                                          *lir.actions.yank_path()*
+    Yank the file path under the cursor into the register of |v:register|.
+
+toggle_show_hidden()                        *lir.actions.toggle_show_hidden()*
+    Toggles between showing and hiding files whose file names start with `.`.
+
+------------------------------------------------------------------------------
+Lua module: lir.mark.actions                                *lir-mark-actions*
+
+mark({mode})                                         *lir.mark.actions.mark()*
+    Marking items.
+
+        Parameters: ~
+            {mode} (string) A single character describing the mode.
+                    Either `'n'` or `'v'`. Default is `'n'`.
+
+unmark({mode})                                     *lir.mark.actions.unmark()*
+    Unmark items.
+
+        Parameters: ~
+            {mode} (string) A single character describing the mode.
+                    Either `'n'` or `'v'`. Default is `'n'`.
+
+toggle({mode})                                     *lir.mark.actions.toggle()*
+    Toggle item marks.
+
+        Parameters: ~
+            {mode} (string) A single character describing the mode.
+                    Either `'n'` or `'v'`. Default is `'n'`.
+
+------------------------------------------------------------------------------
+Lua module: lir.clipboard.actions                      *lir-clipboard-actions*
+
+copy()                                          *lir.clipboard.actions.copy()*
+    Save the marked item to the clipboard as a `copy` target.
+
+cut()                                            *lir.clipboard.actions.cut()*
+    Save the marked item to the clipboard as a `cut` target.
+
+paste()                                        *lir.clipboard.actions.paste()*
+    Paste an item saved in the clipboard.
+
+
+==============================================================================
+FAQ                                                                  *lir-faq*
+
+Q: What is the mapping to open the parent directory of the current buffer
+like `-` in vim-dirvish?
+
+A: >
+    lua vim.api.nvim_set_keymap(
+      'n',
+      '-',
+      [[<Cmd>execute 'e ' .. expand('%:p:h')<CR>]],
+      { noremap = true }
+    )
+<
+
+Q: How do I disable netrw when invoked with `$ nvim /path/to/directory` ?
+
+A:
+>
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+<
+NOTE: see |netrw-noload|
+
+
+Q: How can I pass a file name to a command like xdg-open for a specific
+file type and execute the process?
+
+A: You can use the information obtained from |lir.get_context()| to execute
+commands.
+
+For example, if the file type is `mp4` and you want to open it with `xdg-open`
+>
+    local lir = require'lir'
+
+    lir.setup {
+      mappings = {
+        -- ['l'] = actions.edit,
+        ['l'] = function()
+          local current = lir.get_context():current()
+
+          if string.match(current.value, '[^.]+$') == 'mp4' then
+            vim.fn.system('xdg-open ' .. current.fullpath)
+            return
+          end
+
+          actions.edit()
+        end,
+      }
+      --...
+    }
+<
+
+Q: If I run `:lua vim.cmd('edit /')`  as follows, nothing will be displayed.
+What do I do?
+>
+    require'lir'.setup {
+      mappings = {
+        ["`"] = function()
+          vim.cmd("edit /")
+        end,
+      }
+    }
+<
+
+A: It is a problem with Neovim itself. (https://github.com/neovim/neovim/issues/13726)
+When `:edit /` is executed in |vim.cmd()|, |BufEnter| will not be executed.
+So, do the following.
+>
+    require'lir'.setup {
+      mappings = {
+        ["`"] = function()
+          vim.cmd("edit /")
+          vim.cmd('duautocmd BufEnter')
+        end,
+      }
+    }
+<
+
+Q: How do I set the size of the floating window as a percentage and set the
+border?
+
+A: It can be set by `float.win_opts` in |lir.setup()|.
+    Example:
+        Width is 60%, height is 80%, centered.
+        Set the border line and set the highlight to Normal.
+>
+    require'lir'.setup {
+      -- ...
+      float = {
+        win_opts = function()
+          local width = math.floor(vim.o.columns * 0.6)
+          local height = math.floor(vim.o.lines * 0.8)
+          return {
+            border = {
+              "+", "─", "+", "│", "+", "─", "+", "│",
+            },
+            width = width,
+            height = height,
+            row = math.floor((vim.o.columns - width) / 2) - 1,
+            col = math.floor((vim.o.columns - width) / 2),
+          }
+        end,
+      }
+    }
+<
+
+==============================================================================
+vim:tw=78:sw=4:sts=4:ts=4:ft=help:norl:et
